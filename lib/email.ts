@@ -1,66 +1,70 @@
-import { Resend } from "resend"
+import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export interface EmailData {
-  email: string
-  name?: string
+  email: string;
+  name?: string;
 }
 
 export async function sendWelcomeEmail({ email, name }: EmailData) {
   try {
     // Validar que tenemos la API key
     if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY not found in environment variables")
+      console.error("RESEND_API_KEY not found in environment variables");
       return {
         success: false,
         error: "Email service not configured",
-      }
+      };
     }
 
     // In development/testing, only send to verified email
-    const isDevelopment = process.env.NODE_ENV === "development"
-    const verifiedEmail = "luissanchezb100@gmail.com"
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const verifiedEmail = "luissanchezb100@gmail.com";
 
     // Use verified domain email or fallback to verified email for testing
-    const fromEmail = process.env.FROM_EMAIL || "KUBO AI <onboarding@resend.dev>"
-    const toEmail = isDevelopment ? verifiedEmail : email
+    const fromEmail =
+      process.env.FROM_EMAIL || "KUBO AI <onboarding@resend.dev>";
+    const toEmail = isDevelopment ? verifiedEmail : email;
 
-    console.log(`Sending welcome email to: ${toEmail} (original: ${email})`)
+    console.log(`Sending welcome email to: ${toEmail} (original: ${email})`);
 
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: [toEmail],
       subject: "🚀 ¡Bienvenido a la revolución de KUBO AI!",
       html: getWelcomeEmailTemplate(name || "Desarrollador", email),
-    })
+    });
 
     if (error) {
-      console.error("Error sending welcome email:", error)
+      console.error("Error sending welcome email:", error);
 
       // If it's a domain verification error, provide helpful message
-      if (error.message?.includes("verify a domain") || error.message?.includes("domain")) {
+      if (
+        error.message?.includes("verify a domain") ||
+        error.message?.includes("domain")
+      ) {
         return {
           success: false,
           error: "Email service configuration needed. Contact support.",
           needsDomainVerification: true,
-        }
+        };
       }
 
       return {
         success: false,
         error: error.message || "Failed to send email",
-      }
+      };
     }
 
-    console.log("Welcome email sent successfully:", data)
-    return { success: true, data }
+    console.log("Welcome email sent successfully:", data);
+    return { success: true, data };
   } catch (error) {
-    console.error("Error in sendWelcomeEmail:", error)
+    console.error("Error in sendWelcomeEmail:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-    }
+    };
   }
 }
 
@@ -68,56 +72,62 @@ export async function sendNotificationEmail({ email, name }: EmailData) {
   try {
     // Validar que tenemos la API key
     if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY not found in environment variables")
+      console.error("RESEND_API_KEY not found in environment variables");
       return {
         success: false,
         error: "Email service not configured",
-      }
+      };
     }
 
     // In development/testing, only send to verified email
-    const isDevelopment = process.env.NODE_ENV === "development"
-    const verifiedEmail = "luissanchezb100@gmail.com"
+    const isDevelopment = process.env.NODE_ENV === "development";
+    const verifiedEmail = "luissanchezb100@gmail.com";
 
     // Use verified domain email or fallback to verified email for testing
-    const fromEmail = process.env.FROM_EMAIL || "KUBO AI <onboarding@resend.dev>"
-    const toEmail = isDevelopment ? verifiedEmail : email
+    const fromEmail =
+      process.env.FROM_EMAIL || "KUBO AI <onboarding@resend.dev>";
+    const toEmail = isDevelopment ? verifiedEmail : email;
 
-    console.log(`Sending notification email to: ${toEmail} (original: ${email})`)
+    console.log(
+      `Sending notification email to: ${toEmail} (original: ${email})`
+    );
 
     const { data, error } = await resend.emails.send({
       from: fromEmail,
       to: [toEmail],
       subject: "🎉 ¡KUBO AI ya está disponible! Tu acceso exclusivo te espera",
       html: getNotificationEmailTemplate(name || "Desarrollador", email),
-    })
+    });
 
     if (error) {
-      console.error("Error sending notification email:", error)
+      console.error("Error sending notification email:", error);
 
       // If it's a domain verification error, provide helpful message
-      if (error.message?.includes("verify a domain") || error.message?.includes("domain")) {
+      if (
+        error.message?.includes("verify a domain") ||
+        error.message?.includes("domain")
+      ) {
         return {
           success: false,
           error: "Email service configuration needed. Contact support.",
           needsDomainVerification: true,
-        }
+        };
       }
 
       return {
         success: false,
         error: error.message || "Failed to send email",
-      }
+      };
     }
 
-    console.log("Notification email sent successfully:", data)
-    return { success: true, data }
+    console.log("Notification email sent successfully:", data);
+    return { success: true, data };
   } catch (error) {
-    console.error("Error in sendNotificationEmail:", error)
+    console.error("Error in sendNotificationEmail:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-    }
+    };
   }
 }
 
@@ -299,7 +309,7 @@ function getWelcomeEmailTemplate(name: string, originalEmail: string): string {
         </div>
         
         <div style="text-align: center;">
-          <a href="https://kubo-ai.com" class="cta-button">Visitar KUBO AI</a>
+          <a href="https://kubo-ai-beta.vercel.app" class="cta-button">Visitar KUBO AI</a>
         </div>
         
         <div class="footer">
@@ -313,10 +323,13 @@ function getWelcomeEmailTemplate(name: string, originalEmail: string): string {
       </div>
     </body>
     </html>
-  `
+  `;
 }
 
-function getNotificationEmailTemplate(name: string, originalEmail: string): string {
+function getNotificationEmailTemplate(
+  name: string,
+  originalEmail: string
+): string {
   return `
     <!DOCTYPE html>
     <html lang="es">
@@ -463,7 +476,7 @@ function getNotificationEmailTemplate(name: string, originalEmail: string): stri
         </div>
         
         <div style="text-align: center;">
-          <a href="https://app.kubo-ai.com/early-access" class="cta-button">🚀 ACCEDER A KUBO AI AHORA</a>
+          <a href="https://kubo-ai-beta.vercel.app" class="cta-button">🚀 ACCEDER A KUBO AI AHORA</a>
         </div>
         
         <div class="content">
@@ -491,5 +504,5 @@ function getNotificationEmailTemplate(name: string, originalEmail: string): stri
       </div>
     </body>
     </html>
-  `
+  `;
 }
